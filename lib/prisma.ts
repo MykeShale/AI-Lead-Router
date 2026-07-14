@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+const globalForPrisma = global as unknown as { prisma: any };
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const { PrismaClient } = require("@prisma/client");
 
 export const prisma =
   globalForPrisma.prisma ||

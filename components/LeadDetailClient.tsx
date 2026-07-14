@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Lead } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
-export default function LeadDetailClient({ lead }: { lead: Lead }) {
+export default function LeadDetailClient({ lead }: { lead: any }) {
   const router = useRouter();
   const [draftReply, setDraftReply] = useState(lead.draft_reply || "");
   const [isEditing, setIsEditing] = useState(false);

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Lead } from "@prisma/client";
-
-export default function DashboardClient({ initialLeads }: { initialLeads: Lead[] }) {
+export default function DashboardClient({ initialLeads }: { initialLeads: any[] }) {
   const [filterStatus, setFilterStatus] = useState("All");
   
   const leads = initialLeads.filter(

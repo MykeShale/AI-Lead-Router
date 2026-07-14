@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { Lead } from "@prisma/client";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, Legend
@@ -9,7 +8,7 @@ import {
 
 const COLORS = ["#4f46e5", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#64748b"];
 
-export default function ReportsClient({ leads }: { leads: Lead[] }) {
+export default function ReportsClient({ leads }: { leads: any[] }) {
   const data = useMemo(() => {
     // 1. Leads over time (grouped by day)
     const leadsByDate = leads.reduce((acc, lead) => {

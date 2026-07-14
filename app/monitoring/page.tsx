@@ -40,7 +40,7 @@ export default async function MonitoringPage() {
                 No system errors or enrichment failures found. The system is healthy!
               </li>
             ) : (
-              errorLeads.map((lead) => (
+              errorLeads.map((lead: any) => (
                 <li key={lead.id} className="px-6 py-5 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
