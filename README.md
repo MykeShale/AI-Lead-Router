@@ -1,8 +1,22 @@
 # AI-Powered Lead Intake & Routing System
 
-A portfolio-grade automation project demonstrating workflow automation, AI-assisted drafting, human-in-the-loop review, and reporting.
+**Live Demo**: [https://lead-routing-system-demo.vercel.app](https://lead-routing-system-demo.vercel.app)
 
-**Tech Stack**: Next.js (App Router) + TypeScript + Tailwind CSS, Prisma + PostgreSQL, Anthropic Claude API, Recharts, deployed on Vercel.
+## System Overview
+This project is a portfolio-grade workflow automation system that seamlessly integrates an intake pipeline, AI-driven enrichment (via Anthropic Claude), a human-in-the-loop review interface, automated routing, and comprehensive reporting. It demonstrates the ability to handle raw inputs, process them intelligently with AI, apply business logic for assignment, and present the data in a clean, production-ready dashboard.
+
+## Architecture
+
+```mermaid
+graph TD
+    A[Lead Intake API] --> B[Prisma DB / Postgres]
+    B --> C[AI Enrichment Module]
+    C -->|Claude API| D[Categorize, Summarize, Prioritize & Draft Reply]
+    D --> E[Routing Logic]
+    E --> F[Dashboard & Reporting]
+    E --> G[Human Review Gate]
+    G -->|Approve/Edit/Reject| H[Mock Send/SMTP]
+```
 
 ## Setup Instructions
 
@@ -12,43 +26,34 @@ A portfolio-grade automation project demonstrating workflow automation, AI-assis
    ```
 
 2. **Environment Variables**
-   Copy `.env.example` to `.env` and fill in your actual values:
-   ```bash
-   cp .env.example .env
+   Create a `.env` file based on `.env.example`:
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/leaddb"
+   ANTHROPIC_API_KEY="sk-ant-..."
    ```
-   *Note: Ensure you have a valid PostgreSQL database running for `DATABASE_URL`.*
 
-3. **Database Migration**
-   Initialize the database schema:
+3. **Database Migration & Seeding**
+   Initialize the schema and seed fake leads:
    ```bash
-   npx prisma generate
    npx prisma db push
-   # or npx prisma migrate dev
+   node seed.mjs
    ```
 
 4. **Run Development Server**
    ```bash
    npm run dev
    ```
-   The app will be available at [http://localhost:3000](http://localhost:3000).
 
-## Progress
+## How This Maps to Real Automation Work
 
-### ✅ Phase 1: Scaffold + Schema + Intake Endpoint (Completed)
-- Scaffolded Next.js + TypeScript + Tailwind project with a clean folder structure (`/app`, `/lib`, `/components`, `/prisma`).
-- Created `.env.example` with placeholders for `ANTHROPIC_API_KEY` and `DATABASE_URL`.
-- Configured Prisma schema with the `Lead` model including status, priority, AI enrichment fields, and metadata.
-- Implemented `POST /api/leads/intake` endpoint to validate payload and create new leads.
-- Added hook placeholder for Phase 2 AI Enrichment.
-- Implemented `GET /api/leads` endpoint for dashboard listing.
+*   **Intake (`/api/leads/intake`)**: Mimics the webhook or form endpoint that receives raw data from marketing channels (like Hubspot or Typeform).
+*   **AI Enrichment**: Instead of a human SDR spending 5 minutes reading and categorizing an email, Claude parses the intent, flags urgency, and drafts a baseline response instantly.
+*   **Human Review Gate**: AI isn't perfect. By holding leads in an "Enriched" state, humans maintain control. They review the AI's draft, make quick edits, and hit approve. This drastically reduces handle time while maintaining quality.
+*   **Routing Logic**: Uses the AI's categorization to assign leads to the right queue (e.g., Enterprise Sales vs. Support), preventing bottlenecks and misaligned reps.
+*   **Monitoring & Reporting**: Provides oversight on system health (catching AI hallucinations or timeouts) and tracks KPI metrics like average time-to-response to prove the ROI of the automation.
 
-### ✅ Phase 2: AI Enrichment Module (Completed)
-- Implemented AI enrichment using Anthropic Claude API via `@anthropic-ai/sdk`.
-- Provided a strict JSON prompt to automatically summarize the lead message, categorize, prioritize, and generate a draft reply.
-- Included robust JSON parsing with a retry mechanism and fallback to "NeedsManualReview" on repeated failures.
-- Connected enrichment logic to the intake endpoint synchronously.
-
-### ⏳ Phase 3: Dashboard + Lead Detail/Approval UI (Next)
-- Dashboard view: table or Kanban-by-status listing all leads with priority badges, category tags, source, and quick status. Sortable/filterable.
-- Lead detail view: shows AI summary + draft reply, with Approve & Send / Edit & Send / Reject actions.
-- Routing logic: simple category/priority-based assignment to a mock queue/owner.
+## Known Limitations / Future Enhancements
+- **Queueing**: Currently, enrichment is synchronous. In production, this should move to a background job queue (e.g., Inngest, BullMQ) to avoid holding up the HTTP request and to handle retries gracefully.
+- **Authentication**: The dashboard currently lacks Auth. Needs NextAuth or Clerk integration.
+- **Real Email Sending**: The "Approve & Send" action is currently mocked. Needs integration with an SMTP provider like SendGrid or Postmark.
+- **Rate Limiting & Backoff**: Added retry logic, but production would need exponential backoff and strict rate limiting on the intake endpoint.
