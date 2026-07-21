@@ -25,3 +25,15 @@ model Lead {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model RunLog {
+  id          String   @id @default(uuid())
+  leadId      String?
+  ruleId      String?
+  status      String   // "Success", "Failed"
+  payload     String?  // JSON stringified payload
+  actionType  String?
+  error       String?
+  attempts    Int      @default(1)
+  createdAt   DateTime @default(now())
+}

@@ -2,16 +2,50 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { enrichLead } from "@/lib/enrichLead";
 
+// Simple in-memory rate limiting for demo purposes
+const RATE_LIMIT_WINDOW = 60 * 1000;
+const MAX_REQUESTS = 5;
+const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    // Basic Rate Limiting
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const now = Date.now();
+    const rateLimitInfo = rateLimitMap.get(ip) || { count: 0, resetTime: now + RATE_LIMIT_WINDOW };
+
+    if (now > rateLimitInfo.resetTime) {
+      rateLimitInfo.count = 1;
+      rateLimitInfo.resetTime = now + RATE_LIMIT_WINDOW;
+    } else {
+      rateLimitInfo.count++;
+      if (rateLimitInfo.count > MAX_REQUESTS) {
+        return NextResponse.json(
+          { error: "Too many requests. Please try again later." },
+          { status: 429 }
+        );
+      }
+    }
+    rateLimitMap.set(ip, rateLimitInfo);
+
+    let body;
+    try {
+      body = await req.json();
+    } catch(e) {
+      return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
+    }
+    
     const { name, email, company, message, source } = body;
 
-    if (!name || !email || !message) {
-      return NextResponse.json(
-        { error: "Name, email, and message are required." },
-        { status: 400 }
-      );
+    // Strict Input Validation
+    if (!name || typeof name !== "string") {
+      return NextResponse.json({ error: "Valid name is required." }, { status: 400 });
+    }
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return NextResponse.json({ error: "Valid email is required." }, { status: 400 });
+    }
+    if (!message || typeof message !== "string") {
+      return NextResponse.json({ error: "Valid message is required." }, { status: 400 });
     }
 
     const lead = await prisma.lead.create({

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "rule_1",
+    "name": "Enterprise Routing",
+    "conditions": {
+      "priority": "Hot",
+      "category": "Sales"
+    },
+    "action": {
+      "type": "assign_owner",
+      "payload": {
+        "owner": "Enterprise AE"
+      }
+    }
+  },
+  {
+    "id": "rule_2",
+    "name": "Mid-Market Routing",
+    "conditions": {
+      "priority": "Warm",
+      "category": "Sales"
+    },
+    "action": {
+      "type": "assign_owner",
+      "payload": {
+        "owner": "Mid-Market AE"
+      }
+    }
+  },
+  {
+    "id": "rule_3",
+    "name": "Support Routing",
+    "conditions": {
+      "category": "Support"
+    },
+    "action": {
+      "type": "assign_owner",
+      "payload": {
+        "owner": "Support Team"
+      }
+    }
+  },
+  {
+    "id": "rule_4",
+    "name": "Partnership Routing",
+    "conditions": {
+      "category": "Partnership"
+    },
+    "action": {
+      "type": "assign_owner",
+      "payload": {
+        "owner": "BD Team"
+      }
+    }
+  }
+]

@@ -64,14 +64,7 @@ ${lead.message}`;
         throw new Error("Missing required fields in JSON response");
       }
 
-      // Routing Logic (Mock)
-      let owner = "General Queue";
-      if (parsed.priority === "Hot" && parsed.category === "Sales") owner = "Enterprise AE";
-      else if (parsed.priority === "Warm" && parsed.category === "Sales") owner = "Mid-Market AE";
-      else if (parsed.category === "Support") owner = "Support Team";
-      else if (parsed.category === "Partnership") owner = "BD Team";
-
-      // Update lead with enriched data and assigned owner
+      // Update lead with enriched data before routing
       await prisma.lead.update({
         where: { id: leadId },
         data: {
@@ -80,9 +73,13 @@ ${lead.message}`;
           priority: parsed.priority,
           category: parsed.category,
           draft_reply: parsed.draft_reply,
-          owner: owner,
         },
       });
+
+      // Call the external Rules Engine to route the lead
+      const { processEngineRules } = await import("./engine/runner");
+      await processEngineRules(leadId, parsed);
+
 
       return; // Success
     } catch (error: any) {
